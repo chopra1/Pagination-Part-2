@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* Style the table */
+#myTable {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+#myTable th, #myTable td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+#myTable th {
+  background-color: #f2f2f2;
+}
+
+/* Style the pagination buttons and page numbers */
+button {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin-right: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #3e8e41;
+}
+
+button[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.active {
+  background-color: #008CBA;
+}
+
+/* Style the search box */
+#searchBox {
+  padding: 8px;
+  margin-right: 4px;
+  font-size: 14px;
+}
+
+#searchBtn {
+  background-color: #008CBA;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#searchBtn:hover {
+  background-color: #3e8e41;
+}
+
+    </style>
+</head>
+<body>
+    <table id="myTable">
+        <thead>
+          <tr>
+            <th>Column 1</th>
+            <th>Column 2</th>
+            <th>Column 3</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      
+      <div>
+        <button id="previous">Previous</button>
+        <div id="pageNumberContainer"></div>
+        <button id="next">Next</button>
+      </div>
+      
+      <div>
+        <input type="text" id="searchBox">
+        <button id="searchBtn">Search</button>
+      </div>
+      
+      <script>
+        const myArray = [
+  {col1: 'Value 1', col2: 'Value 2', col3: 'Value 3'},
+  {col1: 'Value 4', col2: 'Value 5', col3: 'Value 6'},
+  {col1: 'Value 7', col2: 'Value 8', col3: 'Value 9'},
+  {col1: 'Value 10', col2: 'Value 11', col3: 'Value 12'},
+  {col1: 'Value 13', col2: 'Value 14', col3: 'Value 15'},
+  {col1: 'Value 16', col2: 'Value 17', col3: 'Value 18'},
+  {col1: 'Value 19', col2: 'Value 20', col3: 'Value 21'},
+  {col1: 'Value 22', col2: 'Value 23', col3: 'Value 24'},
+  {col1: 'Value 25', col2: 'Value 26', col3: 'Value 27'},
+  {col1: 'Value 28', col2: 'Value 29', col3: 'Value 30'},
+];
+        // Define the table, pagination, and page number variables
+const table = document.getElementById('myTable').getElementsByTagName('tbody')[0];
+const previousBtn = document.getElementById('previous');
+const nextBtn = document.getElementById('next');
+const searchBox = document.getElementById('searchBox');
+const searchBtn = document.getElementById('searchBtn');
+const pageNumberContainer = document.getElementById('pageNumberContainer');
+let currentPage = 1;
+const rowsPerPage = 5;
+let totalPages = Math.ceil(myArray.length / rowsPerPage);
+
+// Define the function to display the table
+function displayTable(rows) {
+  table.innerHTML = '';
+  for (let i = 0; i < rows.length; i++) {
+    const row = table.insertRow(i);
+    const col1 = row.insertCell(0);
+    const col2 = row.insertCell(1);
+    const col3 = row.insertCell(2);
+    col1.innerHTML = rows[i].col1;
+    col2.innerHTML = rows[i].col2;
+    col3.innerHTML = rows[i].col3;
+  }
+}
+
+// Define the function to handle the previous button click
+function handlePrevious() {
+  if (currentPage > 1) {
+    currentPage--;
+    displayTable(myArray.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage));
+    updatePagination();
+  }
+}
+
+// Define the function to handle the next button click
+function handleNext() {
+  if (currentPage < totalPages) {
+    currentPage++;
+    displayTable(myArray.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage));
+    updatePagination();
+  }
+}
+
+// Define the function to handle the page number click
+function handlePageNumberClick(e) {
+  const pageNumber = parseInt(e.target.dataset.pageNumber);
+  if (pageNumber !== currentPage) {
+    currentPage = pageNumber;
+    displayTable(myArray.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage));
+    updatePagination();
+  }
+}
+
+// Define the function to handle the search button click
+function handleSearch() {
+  const searchTerm = searchBox.value.toLowerCase();
+  const filteredRows = myArray.filter(row =>
+    Object.values(row).some(val => val.toLowerCase().includes(searchTerm))
+  );
+  currentPage = 1;
+  displayTable(filteredRows.slice(0, rowsPerPage));
+  totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+  updatePagination();
+}
+
+// Define the function to update the pagination buttons and page numbers
+function updatePagination() {
+  previousBtn.disabled = currentPage === 1;
+  nextBtn.disabled = currentPage === totalPages;
+  pageNumberContainer.innerHTML = '';
+  for (let i = 1; i <= totalPages; i++) {
+    const pageNumber = document.createElement('button');
+    pageNumber.innerText = i;
+    pageNumber.dataset.pageNumber = i;
+    pageNumber.addEventListener('click', handlePageNumberClick);
+    if (i === currentPage) {
+      pageNumber.classList.add('active');
+    }
+    pageNumberContainer.appendChild(pageNumber);
+  }
+}
+
+// Add event listeners to the pagination buttons and search button
+previousBtn.addEventListener('click', handlePrevious);
+nextBtn.addEventListener('click', handleNext);
+searchBtn.addEventListener('click', handleSearch);
+
+// Display the initial table and pagination
+displayTable(myArray.slice(0, rowsPerPage));
+updatePagination();
+
+      </script>
+</body>
+</html>

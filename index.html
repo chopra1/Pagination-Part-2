@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <table id="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Age</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data rows will be added dynamically by JavaScript -->
+        </tbody>
+      </table>
+      
+      <div id="pagination">
+        <button id="previous-button">Previous</button>
+        <div id="page-buttons"></div>
+        <button id="next-button">Next</button>
+        <p id="pagination-text"></p>
+      </div>
+      
+      
+    <script>
+        // sample data with 100 objects
+const data = [
+  { id: 1, name: 'Alice', age: 25 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 2, name: 'Bob', age: 30 },
+  // ... (100 objects)
+  { id: 100, name: 'Zoe', age: 35 }
+];
+
+// variables to keep track of pagination state
+let currentPage = 1;
+const rowsPerPage = 10;
+
+// function to display data in a table
+function displayData() {
+  const tableBody = document.querySelector('#data-table tbody');
+  tableBody.innerHTML = '';
+
+  // calculate starting and ending indexes for current page
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+
+  // loop through data and add rows to the table body
+  for (let i = startIndex; i < endIndex && i < data.length; i++) {
+    const row = tableBody.insertRow();
+    const cell1 = row.insertCell();
+    const cell2 = row.insertCell();
+    const cell3 = row.insertCell();
+    cell1.innerHTML = data[i].id;
+    cell2.innerHTML = data[i].name;
+    cell3.innerHTML = data[i].age;
+  }
+
+  // update pagination buttons
+  const paginationButtons = document.querySelectorAll('.pagination-button');
+  for (let i = 0; i < paginationButtons.length; i++) {
+    const button = paginationButtons[i];
+    if (button.dataset.page == currentPage) {
+      button.classList.add('active');
+    } else {
+      button.classList.remove('active');
+    }
+  }
+
+  // update pagination text
+  const paginationText = document.querySelector('#pagination-text');
+  paginationText.innerHTML = `Showing ${startIndex + 1} to ${Math.min(endIndex, data.length)} of ${data.length} entries`;
+}
+
+// function to handle "previous" button click
+function previousPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    displayData();
+  }
+}
+
+// function to handle "next" button click
+function nextPage() {
+  if (currentPage < Math.ceil(data.length / rowsPerPage)) {
+    currentPage++;
+    displayData();
+  }
+}
+
+// function to handle individual page button click
+function setPage(page) {
+  currentPage = page;
+  displayData();
+}
+
+// initialize table and pagination
+displayData();
+
+// attach event listeners to pagination buttons
+const previousButton = document.querySelector('#previous-button');
+previousButton.addEventListener('click', previousPage);
+
+const nextButton = document.querySelector('#next-button');
+nextButton.addEventListener('click', nextPage);
+
+const pageButtonsContainer = document.querySelector('#page-buttons');
+for (let i = 1; i <= Math.ceil(data.length / rowsPerPage); i++) {
+  const button = document.createElement('button');
+  button.innerHTML = i;
+  button.dataset.page = i;
+  button.classList.add('pagination-button');
+  if (i == 1) {
+    button.classList.add('active');
+  }
+  button.addEventListener('click', function() {
+    setPage(parseInt(button.dataset.page));
+  });
+  pageButtonsContainer.appendChild(button);
+}
+
+    </script>
+</body>
+</html>

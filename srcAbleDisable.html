@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pagination Table</title>
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+      }
+
+      .pagination button {
+        background-color: #4caf50;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        cursor: pointer;
+        margin: 0 5px;
+      }
+
+      /* .pagination button:not(.active):hover {
+        background-color: #333;
+      } */
+
+      .search-box {
+        margin-bottom: 10px;
+      }
+
+      .search-box input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      
+      
+      .pagination button.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color:black;
+      }
+      
+      .pagination button.active {
+        background-color: blue;
+        color:aqua;
+      }
+      
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Pagination Table</h1>
+
+      <div class="search-box">
+        <input type="text" id="search-box" placeholder="Search by name..." />
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Email</th>
+          </tr>
+        </thead>
+
+        <tbody id="table-body"></tbody>
+      </table>
+
+      <div class="pagination">
+        <button id="previous-btn">Previous</button>
+        <div id="numbered-buttons"></div>
+        <button id="next-btn">Next</button>
+      </div>
+    </div>
+
+    <script>
+        // Sample data
+const data = [
+  { name: 'John', age: 25, email: 'john@gmail.com' },
+  { name: 'Jane', age: 30, email: 'jane@gmail.com' },
+  { name: 'Bob', age: 35, email: 'bob@gmail.com' },
+  { name: 'John Doe', age: 25, email: 'john.doe@example.com' },
+  { name: 'Jane Smith', age: 32, email: 'jane.smith@example.com' },
+  { name: 'Bob Johnson', age: 42, email: 'bob.johnson@example.com' },
+  { name: 'Mary Williams', age: 19, email: 'mary.williams@example.com' },
+  { name: 'Tom Davis', age: 37, email: 'tom.davis@example.com' },
+  { name: 'Emily Brown', age: 28, email: 'emily.brown@example.com' },
+  { name: 'David Rodriguez', age: 31, email: 'david.rodriguez@example.com' },
+  { name: 'Lisa Taylor', age: 23, email: 'lisa.taylor@example.com' },
+  { name: 'Richard Lee', age: 44, email: 'richard.lee@example.com' },
+  { name: 'Karen Garcia', age: 26, email: 'karen.garcia@example.com' },
+  { name: 'Mark Martinez', age: 39, email: 'mark.martinez@example.com' },
+  { name: 'Cynthia Hernandez', age: 29, email: 'cynthia.hernandez@example.com' },
+  { name: 'Paula Gonzalez', age: 35, email: 'paula.gonzalez@example.com' },
+  { name: 'Larry Allen', age: 48, email: 'larry.allen@example.com' },
+  { name: 'Amanda Young', age: 27, email: 'amanda.young@example.com' },
+  { name: 'Anthony King', age: 41, email: 'anthony.king@example.com' },
+  { name: 'Sharon Wright', age: 33, email: 'sharon.wright@example.com' },
+  { name: 'Jacob Scott', age: 22, email: 'jacob.scott@example.com' },
+  { name: 'Sarah Green', age: 30, email: 'sarah.green@example.com' },
+  { name: 'Ryan Baker', age: 38, email: 'ryan.baker@example.com' },
+  { name: 'Rebecca Nelson', age: 24, email: 'rebecca.nelson@example.com' },
+  { name: 'Jose Gonzalez', age: 36, email: 'jose.gonzalez@example.com' },
+  { name: 'Karen Allen', age: 29, email: 'karen.allen@example.com' },
+  { name: 'Chris Campbell', age: 47, email: 'chris.campbell@example.com' },
+  { name: 'Ashley Mitchell', age: 25, email: 'ashley.mitchell@example.com' },
+  { name: 'Jason Davis', age: 31, email: 'jason.davis@example.com' },
+  { name: 'Stephanie Martinez', age: 34, email: 'stephanie.martinez@example.com' },
+  { name: 'Nicholas Lewis', age: 27, email: 'nicholas.lewis@example.com' },
+  { name: 'Melissa Adams', age: 40, email: 'melissa.adams@example.com' }
+  // Add more data here...
+];
+
+// Constants
+const itemsPerPage = 5;
+const totalPages = Math.ceil(data.length / itemsPerPage);
+
+// HTML elements
+const tableBody = document.getElementById('table-body');
+const numberedButtons = document.getElementById('numbered-buttons');
+const previousButton = document.getElementById('previous-btn');
+const nextButton = document.getElementById('next-btn');
+const searchBox = document.getElementById('search-box');
+
+// Variables
+let currentPage = 1;
+let filteredData = data;
+
+// Functions
+function updateTable() {
+  tableBody.innerHTML = '';
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const tableData = filteredData.slice(startIndex, endIndex);
+
+  tableData.forEach(item => {
+    const row = document.createElement('tr');
+
+    const nameCell = document.createElement('td');
+    nameCell.innerText = item.name;
+    row.appendChild(nameCell);
+
+    const ageCell = document.createElement('td');
+    ageCell.innerText = item.age;
+    row.appendChild(ageCell);
+
+    const emailCell = document.createElement('td');
+    emailCell.innerText = item.email;
+    row.appendChild(emailCell);
+
+    tableBody.appendChild(row);
+  });
+
+  // Disable previous button if applicable
+  if (currentPage === 1) {
+    previousButton.disabled = true;
+  } else {
+    previousButton.disabled = false;
+  }
+
+  // Disable next button if applicable
+  if (currentPage === totalPages) {
+    nextButton.disabled = true;
+  } else {
+    nextButton.disabled = false;
+  }
+}
+
+function updatePagination() {
+  numberedButtons.innerHTML = '';
+
+  let startPage, endPage;
+  if (totalPages <= 10) {
+    startPage = 1;
+    endPage = totalPages;
+  } else {
+    if (currentPage <= 6) {
+      startPage = 1;
+      endPage = 10;
+    } else if (currentPage + 4 >= totalPages) {
+      startPage = totalPages - 9;
+      endPage = totalPages;
+    } else {
+      startPage = currentPage - 5;
+      endPage = currentPage + 4;
+    }
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    const button = document.createElement('button');
+    button.innerText = i;
+    button.addEventListener('click', () => {
+      currentPage = i;
+      updateTable();
+      updatePagination();
+    });
+
+    if (i === currentPage) {
+      button.disabled = true;
+    }
+
+    numberedButtons.appendChild(button);
+  }
+}
+
+function applySearchFilter() {
+  const searchTerm = searchBox.value.toLowerCase();
+  filteredData = data.filter(item => item.name.toLowerCase().includes(searchTerm));
+  totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  currentPage = 1;
+
+  updateTable();
+  updatePagination();
+}
+
+// Initializations
+updateTable();
+updatePagination();
+
+previousButton.addEventListener('click', () => {
+  currentPage--;
+  updateTable();
+  updatePagination();
+});
+
+nextButton.addEventListener('click', () => {
+  currentPage++;
+  updateTable();
+  updatePagination();
+});
+
+searchBox.addEventListener('input', applySearchFilter);
+
+    </script>
+  </body>
+</html>

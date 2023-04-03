@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <table id="myTable">
+        <thead>
+          <tr>
+            <th>Column 1</th>
+            <th>Column 2</th>
+            <th>Column 3</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+      
+      <div>
+        <button id="previous">Previous</button>
+        <button id="next">Next</button>
+      </div>
+      
+      <div>
+        <input type="text" id="searchBox" placeholder="Search...">
+        <button id="searchBtn">Search</button>
+      </div>
+
+      <script>
+        // Define the array of objects
+const myArray = [
+  {col1: 'Value 1', col2: 'Value 2', col3: 'Value 3'},
+  {col1: 'Value 4', col2: 'Value 5', col3: 'Value 6'},
+  {col1: 'Value 7', col2: 'Value 8', col3: 'Value 9'},
+  {col1: 'Value 10', col2: 'Value 11', col3: 'Value 12'},
+  {col1: 'Value 13', col2: 'Value 14', col3: 'Value 15'},
+  {col1: 'Value 16', col2: 'Value 17', col3: 'Value 18'},
+  {col1: 'Value 19', col2: 'Value 20', col3: 'Value 21'},
+  {col1: 'Value 22', col2: 'Value 23', col3: 'Value 24'},
+  {col1: 'Value 25', col2: 'Value 26', col3: 'Value 27'},
+  {col1: 'Value 28', col2: 'Value 29', col3: 'Value 30'},
+];
+
+// Define the table and pagination variables
+const table = document.getElementById('myTable').getElementsByTagName('tbody')[0];
+const previousBtn = document.getElementById('previous');
+const nextBtn = document.getElementById('next');
+const searchBox = document.getElementById('searchBox');
+const searchBtn = document.getElementById('searchBtn');
+let currentPage = 1;
+const rowsPerPage = 5;
+
+// Define the function to display the table
+function displayTable(rows) {
+  table.innerHTML = '';
+  for (let i = 0; i < rows.length; i++) {
+    const row = table.insertRow(i);
+    const col1 = row.insertCell(0);
+    const col2 = row.insertCell(1);
+    const col3 = row.insertCell(2);
+    col1.innerHTML = rows[i].col1;
+    col2.innerHTML = rows[i].col2;
+    col3.innerHTML = rows[i].col3;
+  }
+}
+
+// Define the function to handle the previous button click
+function handlePrevious() {
+  if (currentPage > 1) {
+    currentPage--;
+    displayTable(myArray.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage));
+    nextBtn.disabled = false;
+    if (currentPage === 1) {
+      previousBtn.disabled = true;
+    }
+  }
+}
+
+// Define the function to handle the next button click
+function handleNext() {
+  if (currentPage < Math.ceil(myArray.length / rowsPerPage)) {
+    currentPage++;
+    displayTable(myArray.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage));
+    previousBtn.disabled = false;
+    if (currentPage === Math.ceil(myArray.length / rowsPerPage)) {
+        nextBtn.disabled = true;
+    }
+  }
+}
+
+// Define the function to handle the search button click
+function handleSearch() {
+  const searchTerm = searchBox.value.toLowerCase();
+  const filteredRows = myArray.filter(row =>
+    Object.values(row).some(val => val.toLowerCase().includes(searchTerm))
+  );
+  currentPage = 1;
+  displayTable(filteredRows.slice(0, rowsPerPage));
+  previousBtn.disabled = true;
+  nextBtn.disabled = filteredRows.length <= rowsPerPage;
+}
+
+// Add event listeners to the pagination buttons and search button
+previousBtn.addEventListener('click', handlePrevious);
+nextBtn.addEventListener('click', handleNext);
+searchBtn.addEventListener('click', handleSearch);
+
+// Display the initial table
+displayTable(myArray.slice(0, rowsPerPage));
+previousBtn.disabled = true;
+nextBtn.disabled = myArray.length <= rowsPerPage;
+
+      </script>
+</body>
+</html>
